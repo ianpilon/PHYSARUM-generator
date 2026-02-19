@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physarum Polycephalum Simulation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+
+        body {
+            background-color: #f5f0e6;
+            color: #3a3028;
+            font-family: 'Space Mono', monospace;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Custom Range Slider Styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            background: transparent;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #6b5744;
+            cursor: pointer;
+            margin-top: -6px;
+            box-shadow: 0 0 6px rgba(107,87,68,0.4);
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #c4b8a8;
+            border-radius: 2px;
+        }
+
+        .glass-panel {
+            background: rgba(255, 252, 245, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(107, 87, 68, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(58, 48, 40, 0.15);
+        }
+
+        canvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Canvas for WebGL -->
+    <canvas id="simCanvas"></canvas>
+
+    <!-- UI Controls -->
+    <div class="absolute top-4 left-4 w-80 glass-panel rounded-xl p-6 z-20 transition-opacity duration-300" id="controls">
+        <div class="flex justify-between items-center mb-4 border-b border-stone-300 pb-2">
+            <h1 class="text-lg font-bold text-stone-700 tracking-wider">PHYSARUM<span class="text-stone-400 text-xs ml-2">v1.0</span></h1>
+            <button id="toggleBtn" class="text-xs bg-stone-200 hover:bg-stone-300 text-stone-600 px-2 py-1 rounded border border-stone-300">HIDE</button>
+        </div>
+
+        <div class="space-y-4 text-sm">
+
+            <div class="text-[10px] uppercase tracking-widest text-stone-400 border-b border-stone-200 pb-1">Growth</div>
+
+            <!-- Growth Rate -->
+            <div>
+                <div class="flex justify-between mb-1">
+                    <label class="text-stone-500">Growth Rate</label>
+                    <span id="val-growthRate" class="text-stone-700 font-bold">0.006</span>
+                </div>
+                <input type="range" id="growthRate" min="0.001" max="0.020" step="0.001" value="0.006" class="w-full">
+            </div>
+
+            <!-- Move Speed -->
+            <div>
+                <div class="flex justify-between mb-1">
+                    <label class="text-stone-500">Move Speed</label>
+                    <span id="val-speed" class="text-stone-700 font-bold">1.0</span>
+                </div>
+                <input type="range" id="speed" min="0.2" max="4.0" step="0.1" value="1.0" class="w-full">
+            </div>
+
+            <!-- Trail Decay -->
+            <div>
+                <div class="flex justify-between mb-1">
+                    <label class="text-stone-500">Trail Persistence</label>
+                    <span id="val-decay" class="text-stone-700 font-bold">0.970</span>
+                </div>
+                <input type="range" id="decay" min="0.900" max="0.995" step="0.001" value="0.970" class="w-full">
+            </div>
+
+            <div class="text-[10px] uppercase tracking-widest text-stone-400 border-b border-stone-200 pb-1 pt-2">Branching</div>
+
+            <!-- Fork Chance -->
+            <div>
+                <div class="flex justify-between mb-1">
+                    <label class="text-stone-500">Fork Chance</label>
+                    <span id="val-forkChance" class="text-stone-700 font-bold">0.008</span>
+                </div>
+                <input type="range" id="forkChance" min="0.001" max="0.030" step="0.001" value="0.008" class="w-full">
+            </div>
+
+            <!-- Fork Angle -->
+            <div>
+                <div class="flex justify-between mb-1">
+                    <label class="text-stone-500">Fork Angle</label>
+                    <span id="val-forkAngle" class="text-stone-700 font-bold">0.60</span>
+                </div>
+                <input type="range" id="forkAngle" min="0.10" max="1.50" step="0.05" value="0.60" class="w-full">
+            </div>
+
+            <!-- Branch Spread -->
+            <div>
+                <div class="flex justify-between mb-1">
+                    <label class="text-stone-500">Branch Spread</label>
+                    <span id="val-branchSpread" class="text-stone-700 font-bold">0.50</span>
+                </div>
+                <input type="range" id="branchSpread" min="0.10" max="1.50" step="0.05" value="0.50" class="w-full">
+            </div>
+
+            <div class="text-[10px] uppercase tracking-widest text-stone-400 border-b border-stone-200 pb-1 pt-2">Trail Sensing</div>
+
+            <!-- Sensor Angle -->
+            <div>
+                <div class="flex justify-between mb-1">
+                    <label class="text-stone-500">Sensor Angle</label>
+                    <span id="val-sensorAngle" class="text-stone-700 font-bold">0.50</span>
+                </div>
+                <input type="range" id="sensorAngle" min="0.01" max="3.14" step="0.01" value="0.50" class="w-full">
+            </div>
+
+            <!-- Sensor Distance -->
+            <div>
+                <div class="flex justify-between mb-1">
+                    <label class="text-stone-500">Sensor Distance</label>
+                    <span id="val-sensorDist" class="text-stone-700 font-bold">20</span>
+                </div>
+                <input type="range" id="sensorDist" min="1" max="50" step="1" value="20" class="w-full">
+            </div>
+
+            <!-- Turn Speed -->
+            <div>
+                <div class="flex justify-between mb-1">
+                    <label class="text-stone-500">Turn Speed</label>
+                    <span id="val-turnSpeed" class="text-stone-700 font-bold">0.20</span>
+                </div>
+                <input type="range" id="turnSpeed" min="0.01" max="1.0" step="0.01" value="0.20" class="w-full">
+            </div>
+
+            <div class="pt-3 flex gap-2">
+                <button id="resetBtn" class="flex-1 bg-stone-700/10 hover:bg-stone-700/20 text-stone-600 border border-stone-400 py-2 rounded transition font-bold">RESET</button>
+                <button id="randomBtn" class="flex-1 bg-stone-700/10 hover:bg-stone-700/20 text-stone-600 border border-stone-400 py-2 rounded transition font-bold">RANDOM</button>
+            </div>
+        </div>
+
+        <div class="mt-3 text-[10px] text-stone-400 text-center">
+            Move mouse to grow branches
+        </div>
+    </div>
+
+    <!-- Stats / Info -->
+    <div class="absolute bottom-4 right-4 text-right pointer-events-none z-20">
+        <div class="text-stone-400 text-xs font-mono">AGENTS: <span id="agentCount">0</span></div>
+        <div class="text-stone-400 text-xs font-mono">FPS: <span id="fpsCount">0</span></div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('simCanvas');
+        const gl = canvas.getContext('webgl', { alpha: false });
+
+        if (!gl) {
+            alert("WebGL not supported");
+        }
+
+        // --- Configuration ---
+        const config = {
+            agentCount: 15000,
+            sensorAngle: 0.5,
+            sensorDist: 20,
+            turnSpeed: 0.2,
+            moveSpeed: 1.0,
+            decay: 0.970,
+            // Branching
+            growthRate: 0.006,    // fraction of agents recruited per frame
+            forkChance: 0.008,    // probability of forking per agent per frame
+            forkAngle: 0.60,      // base angle of a fork (radians)
+            branchSpread: 0.50    // randomness added to fork angle
+        };
+
+        let width, height;
+        let agents = [];
+        let frameCount = 0;
+        let lastTime = performance.now();
+
+        // Growth source — center of screen, plus mouse
+        let sourceX, sourceY;
+        let mouseX = -1, mouseY = -1;
+        let mouseActive = false;
+
+        canvas.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            mouseActive = true;
+        });
+        canvas.addEventListener('mouseleave', () => {
+            mouseActive = false;
+        });
+
+        // --- WebGL Setup ---
+
+        const vsSource = `
+            attribute vec2 a_position;
+            void main() {
+                gl_Position = vec4(a_position, 0.0, 1.0);
+            }
+        `;
+
+        const fsSource = `
+            precision mediump float;
+            uniform sampler2D u_texture;
+            uniform vec2 u_resolution;
+            uniform float u_decay;
+
+            void main() {
+                vec2 uv = gl_FragCoord.xy / u_resolution;
+                vec2 texel = 1.0 / u_resolution;
+
+                float sum = 0.0;
+                sum += texture2D(u_texture, uv + vec2(-1.0, -1.0) * texel).r;
+                sum += texture2D(u_texture, uv + vec2( 0.0, -1.0) * texel).r;
+                sum += texture2D(u_texture, uv + vec2( 1.0, -1.0) * texel).r;
+                sum += texture2D(u_texture, uv + vec2(-1.0,  0.0) * texel).r;
+                sum += texture2D(u_texture, uv + vec2( 0.0,  0.0) * texel).r;
+                sum += texture2D(u_texture, uv + vec2( 1.0,  0.0) * texel).r;
+                sum += texture2D(u_texture, uv + vec2(-1.0,  1.0) * texel).r;
+                sum += texture2D(u_texture, uv + vec2( 0.0,  1.0) * texel).r;
+                sum += texture2D(u_texture, uv + vec2( 1.0,  1.0) * texel).r;
+
+                float avg = sum / 9.0;
+                float val = avg * u_decay;
+                if(val < 0.01) val = 0.0;
+
+                gl_FragColor = vec4(val, val, val, 1.0);
+            }
+        `;
+
+        const fsRenderSource = `
+            precision mediump float;
+            uniform sampler2D u_texture;
+            uniform vec2 u_resolution;
+            uniform float u_time;
+
+            float hash(vec2 p) {
+                return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+            }
+
+            void main() {
+                vec2 uv = gl_FragCoord.xy / u_resolution;
+                float val = texture2D(u_texture, uv).r;
+
+                val = pow(val, 0.7);
+
+                vec3 cream    = vec3(0.96, 0.94, 0.90);
+                vec3 darkBrown = vec3(0.18, 0.14, 0.10);
+
+                vec3 color = mix(cream, darkBrown, val);
+                float mid = smoothstep(0.15, 0.4, val) * smoothstep(0.7, 0.4, val);
+                color += vec3(-0.02, -0.01, 0.03) * mid;
+
+                float grain = (hash(gl_FragCoord.xy * 1.1 + u_time) - 0.5) * 0.1;
+                grain += (hash(gl_FragCoord.xy * 3.7 + u_time * 0.7) - 0.5) * 0.06 * val;
+                color += grain;
+
+                gl_FragColor = vec4(color, 1.0);
+            }
+        `;
+
+        function createShader(gl, type, source) {
+            const shader = gl.createShader(type);
+            gl.shaderSource(shader, source);
+            gl.compileShader(shader);
+            if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                console.error('Shader compile error:', gl.getShaderInfoLog(shader));
+                gl.deleteShader(shader);
+                return null;
+            }
+            return shader;
+        }
+
+        function createProgram(gl, vsSource, fsSource) {
+            const vs = createShader(gl, gl.VERTEX_SHADER, vsSource);
+            const fs = createShader(gl, gl.FRAGMENT_SHADER, fsSource);
+            const program = gl.createProgram();
+            gl.attachShader(program, vs);
+            gl.attachShader(program, fs);
+            gl.linkProgram(program);
+            if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+                console.error('Program link error:', gl.getProgramInfoLog(program));
+                return null;
+            }
+            return program;
+        }
+
+        const processProgram = createProgram(gl, vsSource, fsSource);
+        const renderProgram = createProgram(gl, vsSource, fsRenderSource);
+
+        const positionBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+            -1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1,
+        ]), gl.STATIC_DRAW);
+
+        let texture1, texture2, fb1, fb2;
+
+        function initFramebuffers() {
+            if(texture1) {
+                gl.deleteTexture(texture1); gl.deleteTexture(texture2);
+                gl.deleteFramebuffer(fb1); gl.deleteFramebuffer(fb2);
+            }
+
+            const createTex = () => {
+                const tex = gl.createTexture();
+                gl.bindTexture(gl.TEXTURE_2D, tex);
+                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+                return tex;
+            };
+
+            texture1 = createTex();
+            texture2 = createTex();
+
+            fb1 = gl.createFramebuffer();
+            gl.bindFramebuffer(gl.FRAMEBUFFER, fb1);
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture1, 0);
+
+            fb2 = gl.createFramebuffer();
+            gl.bindFramebuffer(gl.FRAMEBUFFER, fb2);
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture2, 0);
+
+            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        }
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            sourceX = width / 2;
+            sourceY = height / 2;
+            initFramebuffers();
+            initAgents();
+        }
+
+        // --- Trail Map ---
+        let trailMap = new Float32Array(1);
+        let nextTrailMap = new Float32Array(1);
+
+        function initAgents() {
+            agents = [];
+            // All agents start dormant — they get activated gradually by growthRate
+            for(let i = 0; i < config.agentCount; i++) {
+                agents.push({
+                    x: sourceX,
+                    y: sourceY,
+                    angle: Math.random() * Math.PI * 2,
+                    active: false
+                });
+            }
+            trailMap = new Float32Array(width * height).fill(0);
+            nextTrailMap = new Float32Array(width * height).fill(0);
+            document.getElementById('agentCount').innerText = config.agentCount;
+        }
+
+        function updateAgents() {
+            let temp = trailMap;
+            trailMap = nextTrailMap;
+            nextTrailMap = temp;
+
+            const w = width;
+            const h = height;
+            const decay = config.decay;
+
+            for(let i = 0; i < w * h; i++) {
+                let val = trailMap[i] * decay;
+                if(val < 0.01) val = 0;
+                nextTrailMap[i] = val;
+            }
+
+            // --- Activate dormant agents based on growth rate ---
+            // growthRate controls how many new agents wake up per frame
+            const toActivate = Math.ceil(config.growthRate * config.agentCount);
+            let activated = 0;
+            for (let i = 0; i < config.agentCount && activated < toActivate; i++) {
+                if (!agents[i].active) {
+                    agents[i].active = true;
+                    agents[i].x = sourceX + (Math.random() - 0.5) * 8;
+                    agents[i].y = sourceY + (Math.random() - 0.5) * 8;
+                    agents[i].angle = Math.random() * Math.PI * 2;
+                    activated++;
+                }
+            }
+
+            // Mouse source: activate additional dormant agents at cursor
+            if (mouseActive) {
+                let mouseActivated = 0;
+                for (let i = 0; i < config.agentCount && mouseActivated < toActivate; i++) {
+                    if (!agents[i].active) {
+                        agents[i].active = true;
+                        agents[i].x = mouseX + (Math.random() - 0.5) * 8;
+                        agents[i].y = mouseY + (Math.random() - 0.5) * 8;
+                        agents[i].angle = Math.random() * Math.PI * 2;
+                        mouseActivated++;
+                    }
+                }
+            }
+
+            // --- Update only active agents ---
+            for(let i = 0; i < config.agentCount; i++) {
+                let agent = agents[i];
+                if (!agent.active) continue;
+
+                // Trail sensing (standard Physarum)
+                const sAngle = config.sensorAngle;
+                const sDist = config.sensorDist;
+
+                const sense = (angle) => {
+                    let sx = Math.floor(agent.x + Math.cos(agent.angle + angle) * sDist);
+                    let sy = Math.floor(agent.y + Math.sin(agent.angle + angle) * sDist);
+                    if(sx < 0 || sx >= w || sy < 0 || sy >= h) return 0;
+                    return trailMap[sy * w + sx];
+                };
+
+                const vLeft = sense(-sAngle);
+                const vCenter = sense(0);
+                const vRight = sense(sAngle);
+
+                if(vCenter > vLeft && vCenter > vRight) {
+                    // Continue straight
+                } else if (vCenter < vLeft && vCenter < vRight) {
+                    agent.angle += (Math.random() - 0.5) * 2 * config.turnSpeed;
+                } else if (vLeft > vRight) {
+                    agent.angle -= config.turnSpeed;
+                } else if (vRight > vLeft) {
+                    agent.angle += config.turnSpeed;
+                }
+
+                // Forking: sharp direction change creates sub-branches.
+                // Other agents following the old trail continue straight
+                // past the fork point = tree structure.
+                if (Math.random() < config.forkChance) {
+                    const sign = Math.random() > 0.5 ? 1 : -1;
+                    agent.angle += sign * (config.forkAngle + (Math.random() - 0.5) * config.branchSpread);
+                }
+
+                // Small jitter for organic feel
+                agent.angle += (Math.random() - 0.5) * 0.08;
+
+                // Move
+                agent.x += Math.cos(agent.angle) * config.moveSpeed;
+                agent.y += Math.sin(agent.angle) * config.moveSpeed;
+
+                // Wrap
+                if(agent.x < 0) agent.x = w - 1;
+                if(agent.x >= w) agent.x = 0;
+                if(agent.y < 0) agent.y = h - 1;
+                if(agent.y >= h) agent.y = 0;
+
+                // Deposit trail
+                let ix = Math.floor(agent.x);
+                let iy = Math.floor(agent.y);
+                if (ix >= 0 && ix < w && iy >= 0 && iy < h) {
+                    nextTrailMap[iy * w + ix] = 1.0;
+                }
+            }
+        }
+
+        // --- Rendering ---
+
+        function draw() {
+            updateAgents();
+
+            gl.bindTexture(gl.TEXTURE_2D, texture1);
+            const pixels = new Uint8Array(width * height * 4);
+            for(let i = 0; i < width * height; i++) {
+                let v = Math.floor(nextTrailMap[i] * 255);
+                pixels[i * 4] = v;
+                pixels[i * 4 + 1] = v;
+                pixels[i * 4 + 2] = v;
+                pixels[i * 4 + 3] = 255;
+            }
+
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+
+            gl.useProgram(processProgram);
+            gl.uniform1i(gl.getUniformLocation(processProgram, "u_texture"), 0);
+            gl.uniform2f(gl.getUniformLocation(processProgram, "u_resolution"), width, height);
+            gl.uniform1f(gl.getUniformLocation(processProgram, "u_decay"), config.decay);
+
+            gl.bindFramebuffer(gl.FRAMEBUFFER, fb2);
+            gl.viewport(0, 0, width, height);
+
+            const posLoc = gl.getAttribLocation(processProgram, "a_position");
+            gl.enableVertexAttribArray(posLoc);
+            gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+            gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, 0, 0);
+
+            gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+            gl.viewport(0, 0, width, height);
+            gl.useProgram(renderProgram);
+            gl.uniform1i(gl.getUniformLocation(renderProgram, "u_texture"), 0);
+            gl.uniform2f(gl.getUniformLocation(renderProgram, "u_resolution"), width, height);
+            gl.uniform1f(gl.getUniformLocation(renderProgram, "u_time"), performance.now() * 0.001);
+
+            gl.bindTexture(gl.TEXTURE_2D, texture2);
+
+            let t = texture1; texture1 = texture2; texture2 = t;
+            let f = fb1; fb1 = fb2; fb2 = f;
+
+            const posLoc2 = gl.getAttribLocation(renderProgram, "a_position");
+            gl.enableVertexAttribArray(posLoc2);
+            gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+            gl.vertexAttribPointer(posLoc2, 2, gl.FLOAT, false, 0, 0);
+
+            gl.drawArrays(gl.TRIANGLES, 0, 6);
+        }
+
+        function loop() {
+            draw();
+            frameCount++;
+            const now = performance.now();
+            if (now - lastTime >= 1000) {
+                document.getElementById('fpsCount').innerText = frameCount;
+                document.getElementById('agentCount').innerText =
+                    agents.filter(a => a.active).length;
+                frameCount = 0;
+                lastTime = now;
+            }
+            requestAnimationFrame(loop);
+        }
+
+        // --- UI ---
+
+        function bindSlider(id, configKey, displayId, decimals) {
+            const el = document.getElementById(id);
+            const disp = document.getElementById(displayId);
+            decimals = decimals || 2;
+            el.addEventListener('input', (e) => {
+                const val = parseFloat(e.target.value);
+                config[configKey] = val;
+                disp.innerText = val.toFixed(decimals);
+            });
+        }
+
+        bindSlider('growthRate', 'growthRate', 'val-growthRate', 3);
+        bindSlider('speed', 'moveSpeed', 'val-speed', 1);
+        bindSlider('decay', 'decay', 'val-decay', 3);
+        bindSlider('forkChance', 'forkChance', 'val-forkChance', 3);
+        bindSlider('forkAngle', 'forkAngle', 'val-forkAngle', 2);
+        bindSlider('branchSpread', 'branchSpread', 'val-branchSpread', 2);
+        bindSlider('sensorAngle', 'sensorAngle', 'val-sensorAngle', 2);
+        bindSlider('sensorDist', 'sensorDist', 'val-sensorDist', 0);
+        bindSlider('turnSpeed', 'turnSpeed', 'val-turnSpeed', 2);
+
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            initAgents();
+            const empty = new Uint8Array(width * height * 4);
+            gl.bindTexture(gl.TEXTURE_2D, texture1);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, empty);
+            gl.bindTexture(gl.TEXTURE_2D, texture2);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, empty);
+        });
+
+        document.getElementById('randomBtn').addEventListener('click', () => {
+            config.growthRate = Math.random() * 0.015 + 0.002;
+            config.forkChance = Math.random() * 0.025 + 0.002;
+            config.forkAngle = Math.random() * 1.2 + 0.15;
+            config.branchSpread = Math.random() * 1.2 + 0.1;
+            config.sensorAngle = Math.random() * 1.5 + 0.1;
+            config.sensorDist = Math.random() * 40 + 5;
+            config.turnSpeed = Math.random() * 0.5 + 0.05;
+            config.decay = Math.random() * 0.06 + 0.935;
+
+            // Sync UI
+            const sync = (id, val, dec) => {
+                document.getElementById(id).value = val;
+                document.getElementById('val-' + id).innerText = val.toFixed(dec);
+            };
+            sync('growthRate', config.growthRate, 3);
+            sync('forkChance', config.forkChance, 3);
+            sync('forkAngle', config.forkAngle, 2);
+            sync('branchSpread', config.branchSpread, 2);
+            sync('sensorAngle', config.sensorAngle, 2);
+            sync('sensorDist', config.sensorDist, 0);
+            sync('turnSpeed', config.turnSpeed, 2);
+            sync('decay', config.decay, 3);
+
+            // Reset with new params
+            initAgents();
+            const empty = new Uint8Array(width * height * 4);
+            gl.bindTexture(gl.TEXTURE_2D, texture1);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, empty);
+            gl.bindTexture(gl.TEXTURE_2D, texture2);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, empty);
+        });
+
+        // Toggle UI
+        const uiPanel = document.getElementById('controls');
+        const toggleBtn = document.getElementById('toggleBtn');
+        let uiVisible = true;
+        toggleBtn.addEventListener('click', () => {
+            uiVisible = !uiVisible;
+            if(uiVisible) {
+                uiPanel.style.opacity = '1';
+                uiPanel.style.pointerEvents = 'auto';
+                toggleBtn.innerText = 'HIDE';
+            } else {
+                uiPanel.style.opacity = '0';
+                uiPanel.style.pointerEvents = 'none';
+                toggleBtn.innerText = 'SHOW';
+            }
+        });
+
+        // --- Start ---
+        window.addEventListener('resize', resize);
+        resize();
+        loop();
+
+    </script>
+</body>
+</html>
