@@ -3,6 +3,7 @@
 A real-time, interactive slime mold simulation built with WebGL and vanilla JavaScript in a single HTML file. Agents grow outward from a central point in dendritic, tree-like branching patterns — inspired by the network-forming behavior of *Physarum polycephalum*.
 
 ![Physarum](https://img.shields.io/badge/WebGL-Simulation-6b5744) ![License](https://img.shields.io/badge/license-MIT-blue)
+![Uploading Screenshot 2026-02-19 at 6.04.30 PM.png…]()
 
 ## Demo
 
