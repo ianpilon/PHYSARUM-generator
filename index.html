@@ -55,6 +55,51 @@
             width: 100vw;
             height: 100vh;
         }
+
+        .info-tip {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 14px;
+            height: 14px;
+            font-size: 10px;
+            line-height: 1;
+            border-radius: 50%;
+            border: 1px solid #b8a99a;
+            color: #9a8a7a;
+            cursor: help;
+            margin-left: 4px;
+            flex-shrink: 0;
+            font-style: italic;
+            font-family: Georgia, serif;
+        }
+
+        .info-tip::after {
+            content: attr(data-tip);
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #3a3028;
+            color: #f5f0e6;
+            font-family: 'Space Mono', monospace;
+            font-style: normal;
+            font-size: 10px;
+            line-height: 1.4;
+            padding: 6px 10px;
+            border-radius: 6px;
+            width: 200px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.15s;
+            z-index: 50;
+            white-space: normal;
+        }
+
+        .info-tip:hover::after {
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
@@ -68,7 +113,7 @@
     <!-- UI Controls -->
     <div class="absolute top-4 left-4 w-80 glass-panel rounded-xl p-6 z-20 transition-opacity duration-300" id="controls">
         <div class="flex justify-between items-center mb-4 border-b border-stone-300 pb-2">
-            <h1 class="text-lg font-bold text-stone-700 tracking-wider">PHYSARUM<span class="text-stone-400 text-xs ml-2">v1.0</span></h1>
+            <h1 class="text-lg font-bold text-stone-700 tracking-wider">PHYSARUM<span class="text-stone-400 text-xs ml-2">v2.0</span></h1>
             <button id="toggleBtn" class="text-xs bg-stone-200 hover:bg-stone-300 text-stone-600 px-2 py-1 rounded border border-stone-300">HIDE</button>
         </div>
 
@@ -79,16 +124,16 @@
             <!-- Growth Rate -->
             <div>
                 <div class="flex justify-between mb-1">
-                    <label class="text-stone-500">Growth Rate</label>
-                    <span id="val-growthRate" class="text-stone-700 font-bold">0.006</span>
+                    <label class="text-stone-500 flex items-center">Growth Rate<span class="info-tip" data-tip="How many new agents spawn per frame. Higher values create denser, faster-growing networks.">i</span></label>
+                    <span id="val-growthRate" class="text-stone-700 font-bold">0.004</span>
                 </div>
-                <input type="range" id="growthRate" min="0.001" max="0.020" step="0.001" value="0.006" class="w-full">
+                <input type="range" id="growthRate" min="0.001" max="0.020" step="0.001" value="0.004" class="w-full">
             </div>
 
             <!-- Move Speed -->
             <div>
                 <div class="flex justify-between mb-1">
-                    <label class="text-stone-500">Move Speed</label>
+                    <label class="text-stone-500 flex items-center">Move Speed<span class="info-tip" data-tip="How fast agents travel forward. Higher values produce longer, straighter veins.">i</span></label>
                     <span id="val-speed" class="text-stone-700 font-bold">1.0</span>
                 </div>
                 <input type="range" id="speed" min="0.2" max="4.0" step="0.1" value="1.0" class="w-full">
@@ -97,10 +142,10 @@
             <!-- Trail Decay -->
             <div>
                 <div class="flex justify-between mb-1">
-                    <label class="text-stone-500">Trail Persistence</label>
-                    <span id="val-decay" class="text-stone-700 font-bold">0.970</span>
+                    <label class="text-stone-500 flex items-center">Trail Persistence<span class="info-tip" data-tip="How slowly trails fade over time. Higher values keep veins visible longer, creating thicker networks.">i</span></label>
+                    <span id="val-decay" class="text-stone-700 font-bold">0.985</span>
                 </div>
-                <input type="range" id="decay" min="0.900" max="0.995" step="0.001" value="0.970" class="w-full">
+                <input type="range" id="decay" min="0.900" max="0.995" step="0.001" value="0.985" class="w-full">
             </div>
 
             <div class="text-[10px] uppercase tracking-widest text-stone-400 border-b border-stone-200 pb-1 pt-2">Branching</div>
@@ -108,25 +153,25 @@
             <!-- Fork Chance -->
             <div>
                 <div class="flex justify-between mb-1">
-                    <label class="text-stone-500">Fork Chance</label>
-                    <span id="val-forkChance" class="text-stone-700 font-bold">0.008</span>
+                    <label class="text-stone-500 flex items-center">Fork Chance<span class="info-tip" data-tip="Probability of a branch splitting each step. Higher values create bushier, more branched growth.">i</span></label>
+                    <span id="val-forkChance" class="text-stone-700 font-bold">0.012</span>
                 </div>
-                <input type="range" id="forkChance" min="0.001" max="0.030" step="0.001" value="0.008" class="w-full">
+                <input type="range" id="forkChance" min="0.001" max="0.030" step="0.001" value="0.012" class="w-full">
             </div>
 
             <!-- Fork Angle -->
             <div>
                 <div class="flex justify-between mb-1">
-                    <label class="text-stone-500">Fork Angle</label>
-                    <span id="val-forkAngle" class="text-stone-700 font-bold">0.60</span>
+                    <label class="text-stone-500 flex items-center">Fork Angle<span class="info-tip" data-tip="Deflection angle when a branch splits. Higher values create wider V-shaped forks.">i</span></label>
+                    <span id="val-forkAngle" class="text-stone-700 font-bold">0.78</span>
                 </div>
-                <input type="range" id="forkAngle" min="0.10" max="1.50" step="0.05" value="0.60" class="w-full">
+                <input type="range" id="forkAngle" min="0.10" max="1.50" step="0.05" value="0.78" class="w-full">
             </div>
 
             <!-- Branch Spread -->
             <div>
                 <div class="flex justify-between mb-1">
-                    <label class="text-stone-500">Branch Spread</label>
+                    <label class="text-stone-500 flex items-center">Branch Spread<span class="info-tip" data-tip="Angular jitter for new branches. Higher values create more organic, irregular spreading patterns.">i</span></label>
                     <span id="val-branchSpread" class="text-stone-700 font-bold">0.50</span>
                 </div>
                 <input type="range" id="branchSpread" min="0.10" max="1.50" step="0.05" value="0.50" class="w-full">
@@ -137,7 +182,7 @@
             <!-- Sensor Angle -->
             <div>
                 <div class="flex justify-between mb-1">
-                    <label class="text-stone-500">Sensor Angle</label>
+                    <label class="text-stone-500 flex items-center">Sensor Angle<span class="info-tip" data-tip="How wide agents look left and right for existing trails. Wider angles produce smoother, more flowing curves.">i</span></label>
                     <span id="val-sensorAngle" class="text-stone-700 font-bold">0.50</span>
                 </div>
                 <input type="range" id="sensorAngle" min="0.01" max="3.14" step="0.01" value="0.50" class="w-full">
@@ -146,7 +191,7 @@
             <!-- Sensor Distance -->
             <div>
                 <div class="flex justify-between mb-1">
-                    <label class="text-stone-500">Sensor Distance</label>
+                    <label class="text-stone-500 flex items-center">Sensor Distance<span class="info-tip" data-tip="How far ahead agents sample the trail map. Longer distances let agents plan broader paths and merge with distant veins.">i</span></label>
                     <span id="val-sensorDist" class="text-stone-700 font-bold">20</span>
                 </div>
                 <input type="range" id="sensorDist" min="1" max="50" step="1" value="20" class="w-full">
@@ -155,20 +200,63 @@
             <!-- Turn Speed -->
             <div>
                 <div class="flex justify-between mb-1">
-                    <label class="text-stone-500">Turn Speed</label>
+                    <label class="text-stone-500 flex items-center">Turn Speed<span class="info-tip" data-tip="How sharply agents steer toward nearby trails. Higher values create tighter turns and more tangled networks.">i</span></label>
                     <span id="val-turnSpeed" class="text-stone-700 font-bold">0.20</span>
                 </div>
                 <input type="range" id="turnSpeed" min="0.01" max="1.0" step="0.01" value="0.20" class="w-full">
+            </div>
+
+            <div class="text-[10px] uppercase tracking-widest text-stone-400 border-b border-stone-200 pb-1 pt-2">Hierarchy</div>
+
+            <!-- Core Radius -->
+            <div>
+                <div class="flex justify-between mb-1">
+                    <label class="text-stone-500 flex items-center">Core Radius<span class="info-tip" data-tip="Size of the central spawn disc where agents originate. Larger values create a wider trunk base.">i</span></label>
+                    <span id="val-coreRadius" class="text-stone-700 font-bold">50</span>
+                </div>
+                <input type="range" id="coreRadius" min="10" max="150" step="5" value="50" class="w-full">
+            </div>
+
+            <!-- Branch Depth -->
+            <div>
+                <div class="flex justify-between mb-1">
+                    <label class="text-stone-500 flex items-center">Branch Depth<span class="info-tip" data-tip="Maximum generations of recursive branching. Higher values add finer capillary detail at the tips.">i</span></label>
+                    <span id="val-maxGeneration" class="text-stone-700 font-bold">6</span>
+                </div>
+                <input type="range" id="maxGeneration" min="1" max="10" step="1" value="6" class="w-full">
+            </div>
+
+            <!-- Vein Taper -->
+            <div>
+                <div class="flex justify-between mb-1">
+                    <label class="text-stone-500 flex items-center">Vein Taper<span class="info-tip" data-tip="How much thinner each child branch deposits compared to its parent. Lower values make tips fade faster from trunk.">i</span></label>
+                    <span id="val-veinTaper" class="text-stone-700 font-bold">0.55</span>
+                </div>
+                <input type="range" id="veinTaper" min="0.20" max="0.90" step="0.05" value="0.55" class="w-full">
+            </div>
+
+            <!-- Porosity -->
+            <div>
+                <div class="flex justify-between mb-1">
+                    <label class="text-stone-500 flex items-center">Porosity<span class="info-tip" data-tip="Adds organic noise texture in medium-density areas. Higher values create more visible holes and gaps in the veins.">i</span></label>
+                    <span id="val-porosity" class="text-stone-700 font-bold">0.50</span>
+                </div>
+                <input type="range" id="porosity" min="0.00" max="1.00" step="0.05" value="0.50" class="w-full">
             </div>
 
             <div class="pt-3 flex gap-2">
                 <button id="resetBtn" class="flex-1 bg-stone-700/10 hover:bg-stone-700/20 text-stone-600 border border-stone-400 py-2 rounded transition font-bold">RESET</button>
                 <button id="randomBtn" class="flex-1 bg-stone-700/10 hover:bg-stone-700/20 text-stone-600 border border-stone-400 py-2 rounded transition font-bold">RANDOM</button>
             </div>
+            <div class="pt-1 flex gap-2">
+                <button id="saveBtn" class="flex-1 bg-stone-700/10 hover:bg-stone-700/20 text-stone-600 border border-stone-400 py-2 rounded transition font-bold">SAVE</button>
+                <button id="loadBtn" class="flex-1 bg-stone-700/10 hover:bg-stone-700/20 text-stone-600 border border-stone-400 py-2 rounded transition font-bold">LOAD</button>
+            </div>
+            <input type="file" id="loadFile" accept=".json" class="hidden">
         </div>
 
         <div class="mt-3 text-[10px] text-stone-400 text-center">
-            Move mouse to grow branches
+            Move mouse to grow branches &bull; Dendritic mode
         </div>
     </div>
 
@@ -193,16 +281,25 @@
             sensorDist: 20,
             turnSpeed: 0.2,
             moveSpeed: 1.0,
-            decay: 0.970,
+            decay: 0.985,
             // Branching
-            growthRate: 0.006,    // fraction of agents recruited per frame
-            forkChance: 0.008,    // probability of forking per agent per frame
-            forkAngle: 0.60,      // base angle of a fork (radians)
-            branchSpread: 0.50    // randomness added to fork angle
+            growthRate: 0.004,
+            forkChance: 0.012,
+            forkAngle: 0.78,
+            branchSpread: 0.50,
+            // Hierarchy (dendritic)
+            coreRadius: 50,
+            maxGeneration: 6,
+            veinTaper: 0.55,
+            baseLife: 400,
+            lifeTaper: 0.6,
+            forkAcceleration: 1.3,
+            porosity: 0.5
         };
 
         let width, height;
         let agents = [];
+        let dormantPool = [];   // indices of dormant agents for O(1) allocation
         let frameCount = 0;
         let lastTime = performance.now();
 
@@ -252,7 +349,7 @@
 
                 float avg = sum / 9.0;
                 float val = avg * u_decay;
-                if(val < 0.01) val = 0.0;
+                if(val < 0.003) val = 0.0;
 
                 gl_FragColor = vec4(val, val, val, 1.0);
             }
@@ -263,24 +360,69 @@
             uniform sampler2D u_texture;
             uniform vec2 u_resolution;
             uniform float u_time;
+            uniform vec2 u_center;
+            uniform float u_porosity;
 
             float hash(vec2 p) {
                 return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+            }
+
+            float noise(vec2 p) {
+                vec2 i = floor(p);
+                vec2 f = fract(p);
+                f = f * f * (3.0 - 2.0 * f);
+                float a = hash(i);
+                float b = hash(i + vec2(1.0, 0.0));
+                float c = hash(i + vec2(0.0, 1.0));
+                float d = hash(i + vec2(1.0, 1.0));
+                return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+            }
+
+            float fbm(vec2 p) {
+                float val = 0.0;
+                float amp = 0.5;
+                for(int i = 0; i < 4; i++) {
+                    val += amp * noise(p);
+                    p *= 2.0;
+                    amp *= 0.5;
+                }
+                return val;
             }
 
             void main() {
                 vec2 uv = gl_FragCoord.xy / u_resolution;
                 float val = texture2D(u_texture, uv).r;
 
-                val = pow(val, 0.7);
+                // Distance gradient from center
+                vec2 toCenter = uv - u_center;
+                float aspect = u_resolution.x / u_resolution.y;
+                toCenter.x *= aspect;
+                float dist = length(toCenter) / (0.5 * aspect);
+                dist = clamp(dist, 0.0, 1.0);
 
-                vec3 cream    = vec3(0.96, 0.94, 0.90);
-                vec3 darkBrown = vec3(0.18, 0.14, 0.10);
+                // Adaptive power curve: center shows more detail, edges suppress weak signals
+                val = pow(val, 0.5 + dist * 0.4);
 
-                vec3 color = mix(cream, darkBrown, val);
+                // Three-tone palette
+                vec3 cream     = vec3(0.96, 0.94, 0.90);
+                vec3 deepBrown = vec3(0.12, 0.08, 0.06);
+                vec3 paleBrown = vec3(0.55, 0.48, 0.40);
+
+                // Blend vein color based on distance: deep at center, pale at edges
+                vec3 veinColor = mix(deepBrown, paleBrown, dist);
+                vec3 color = mix(cream, veinColor, val);
+
+                // Blue midtone tint (preserved)
                 float mid = smoothstep(0.15, 0.4, val) * smoothstep(0.7, 0.4, val);
                 color += vec3(-0.02, -0.01, 0.03) * mid;
 
+                // Porous texture: fbm noise in medium-intensity areas
+                float poreMask = smoothstep(0.05, 0.25, val) * smoothstep(0.65, 0.35, val);
+                float poreNoise = fbm(gl_FragCoord.xy * 0.04 + u_time * 0.05);
+                poreNoise = smoothstep(0.35, 0.65, poreNoise);
+                color = mix(color, cream, poreNoise * poreMask * u_porosity * 0.6);
+
+                // Film grain (preserved)
                 float grain = (hash(gl_FragCoord.xy * 1.1 + u_time) - 0.5) * 0.1;
                 grain += (hash(gl_FragCoord.xy * 3.7 + u_time * 0.7) - 0.5) * 0.06 * val;
                 color += grain;
@@ -372,18 +514,80 @@
 
         function initAgents() {
             agents = [];
-            // All agents start dormant — they get activated gradually by growthRate
+            dormantPool = [];
             for(let i = 0; i < config.agentCount; i++) {
                 agents.push({
                     x: sourceX,
                     y: sourceY,
                     angle: Math.random() * Math.PI * 2,
-                    active: false
+                    active: false,
+                    generation: 0,
+                    life: 0,
+                    maxLife: 0,
+                    depositStrength: 1.0
                 });
+                dormantPool.push(i);
             }
             trailMap = new Float32Array(width * height).fill(0);
             nextTrailMap = new Float32Array(width * height).fill(0);
             document.getElementById('agentCount').innerText = config.agentCount;
+        }
+
+        // Activate a dormant agent as gen-0 at a position with disc spawn
+        function activateAgent(cx, cy, isDisc) {
+            if (dormantPool.length === 0) return;
+            const idx = dormantPool.pop();
+            const agent = agents[idx];
+            agent.active = true;
+            agent.generation = 0;
+            agent.depositStrength = 1.0;
+
+            if (isDisc) {
+                // Disc spawn: random position within coreRadius, outward-biased angle
+                const r = Math.sqrt(Math.random()) * config.coreRadius;
+                const theta = Math.random() * Math.PI * 2;
+                agent.x = cx + Math.cos(theta) * r;
+                agent.y = cy + Math.sin(theta) * r;
+                // Outward-biased angle: mostly radial outward with some jitter
+                agent.angle = theta + (Math.random() - 0.5) * 0.8;
+            } else {
+                agent.x = cx + (Math.random() - 0.5) * 8;
+                agent.y = cy + (Math.random() - 0.5) * 8;
+                agent.angle = Math.random() * Math.PI * 2;
+            }
+
+            // Randomized life (80%-120% of baseLife)
+            const lifeBase = config.baseLife;
+            agent.maxLife = Math.floor(lifeBase * (0.8 + Math.random() * 0.4));
+            agent.life = agent.maxLife;
+        }
+
+        // Fork: create a child agent from a parent
+        function forkChild(parent) {
+            if (dormantPool.length === 0) return;
+            const childGen = parent.generation + 1;
+            if (childGen > config.maxGeneration) return;
+
+            const idx = dormantPool.pop();
+            const child = agents[idx];
+            child.active = true;
+            child.x = parent.x;
+            child.y = parent.y;
+            child.generation = childGen;
+            child.depositStrength = parent.depositStrength * config.veinTaper;
+
+            // Asymmetric fork: child deflects 30-60 degrees
+            const sign = Math.random() > 0.5 ? 1 : -1;
+            const deflection = config.forkAngle * (0.5 + Math.random() * 0.5);
+            child.angle = parent.angle + sign * deflection;
+
+            // Life reduces with generation
+            const lifeBase = config.baseLife * Math.pow(config.lifeTaper, childGen);
+            child.maxLife = Math.floor(lifeBase * (0.8 + Math.random() * 0.4));
+            child.life = child.maxLife;
+
+            // Parent gets a slight nudge in the opposite direction
+            parent.angle -= sign * deflection * 0.15;
         }
 
         function updateAgents() {
@@ -397,35 +601,20 @@
 
             for(let i = 0; i < w * h; i++) {
                 let val = trailMap[i] * decay;
-                if(val < 0.01) val = 0;
+                if(val < 0.003) val = 0;
                 nextTrailMap[i] = val;
             }
 
             // --- Activate dormant agents based on growth rate ---
-            // growthRate controls how many new agents wake up per frame
             const toActivate = Math.ceil(config.growthRate * config.agentCount);
-            let activated = 0;
-            for (let i = 0; i < config.agentCount && activated < toActivate; i++) {
-                if (!agents[i].active) {
-                    agents[i].active = true;
-                    agents[i].x = sourceX + (Math.random() - 0.5) * 8;
-                    agents[i].y = sourceY + (Math.random() - 0.5) * 8;
-                    agents[i].angle = Math.random() * Math.PI * 2;
-                    activated++;
-                }
+            for (let a = 0; a < toActivate; a++) {
+                activateAgent(sourceX, sourceY, true);
             }
 
-            // Mouse source: activate additional dormant agents at cursor
+            // Mouse source
             if (mouseActive) {
-                let mouseActivated = 0;
-                for (let i = 0; i < config.agentCount && mouseActivated < toActivate; i++) {
-                    if (!agents[i].active) {
-                        agents[i].active = true;
-                        agents[i].x = mouseX + (Math.random() - 0.5) * 8;
-                        agents[i].y = mouseY + (Math.random() - 0.5) * 8;
-                        agents[i].angle = Math.random() * Math.PI * 2;
-                        mouseActivated++;
-                    }
+                for (let a = 0; a < toActivate; a++) {
+                    activateAgent(mouseX, mouseY, false);
                 }
             }
 
@@ -433,6 +622,14 @@
             for(let i = 0; i < config.agentCount; i++) {
                 let agent = agents[i];
                 if (!agent.active) continue;
+
+                // Life countdown
+                agent.life--;
+                if (agent.life <= 0) {
+                    agent.active = false;
+                    dormantPool.push(i);
+                    continue;
+                }
 
                 // Trail sensing (standard Physarum)
                 const sAngle = config.sensorAngle;
@@ -459,32 +656,37 @@
                     agent.angle += config.turnSpeed;
                 }
 
-                // Forking: sharp direction change creates sub-branches.
-                // Other agents following the old trail continue straight
-                // past the fork point = tree structure.
-                if (Math.random() < config.forkChance) {
-                    const sign = Math.random() > 0.5 ? 1 : -1;
-                    agent.angle += sign * (config.forkAngle + (Math.random() - 0.5) * config.branchSpread);
+                // True bifurcation: fork chance increases with generation
+                const genForkChance = config.forkChance * Math.pow(config.forkAcceleration, agent.generation);
+                if (Math.random() < genForkChance) {
+                    forkChild(agent);
                 }
 
-                // Small jitter for organic feel
-                agent.angle += (Math.random() - 0.5) * 0.08;
+                // Generation-dependent jitter: higher gen = more wiggly capillaries
+                const jitter = 0.08 + agent.generation * 0.04;
+                agent.angle += (Math.random() - 0.5) * jitter;
 
-                // Move
-                agent.x += Math.cos(agent.angle) * config.moveSpeed;
-                agent.y += Math.sin(agent.angle) * config.moveSpeed;
+                // Move — slightly slower at higher generations
+                const genSpeed = config.moveSpeed * (1.0 - agent.generation * 0.05);
+                agent.x += Math.cos(agent.angle) * Math.max(genSpeed, 0.3);
+                agent.y += Math.sin(agent.angle) * Math.max(genSpeed, 0.3);
 
-                // Wrap
-                if(agent.x < 0) agent.x = w - 1;
-                if(agent.x >= w) agent.x = 0;
-                if(agent.y < 0) agent.y = h - 1;
-                if(agent.y >= h) agent.y = 0;
+                // Boundary: stop (die at edges, no wrap)
+                if(agent.x < 0 || agent.x >= w || agent.y < 0 || agent.y >= h) {
+                    agent.active = false;
+                    dormantPool.push(i);
+                    continue;
+                }
 
-                // Deposit trail
+                // Deposit trail — accumulative, with life fade
                 let ix = Math.floor(agent.x);
                 let iy = Math.floor(agent.y);
                 if (ix >= 0 && ix < w && iy >= 0 && iy < h) {
-                    nextTrailMap[iy * w + ix] = 1.0;
+                    // Life fade: deposit weakens as agent nears death
+                    const lifeFrac = agent.life / agent.maxLife;
+                    const deposit = agent.depositStrength * lifeFrac;
+                    const mapIdx = iy * w + ix;
+                    nextTrailMap[mapIdx] = Math.min(1.0, nextTrailMap[mapIdx] + deposit);
                 }
             }
         }
@@ -527,6 +729,8 @@
             gl.uniform1i(gl.getUniformLocation(renderProgram, "u_texture"), 0);
             gl.uniform2f(gl.getUniformLocation(renderProgram, "u_resolution"), width, height);
             gl.uniform1f(gl.getUniformLocation(renderProgram, "u_time"), performance.now() * 0.001);
+            gl.uniform2f(gl.getUniformLocation(renderProgram, "u_center"), 0.5, 0.5);
+            gl.uniform1f(gl.getUniformLocation(renderProgram, "u_porosity"), config.porosity);
 
             gl.bindTexture(gl.TEXTURE_2D, texture2);
 
@@ -548,7 +752,7 @@
             if (now - lastTime >= 1000) {
                 document.getElementById('fpsCount').innerText = frameCount;
                 document.getElementById('agentCount').innerText =
-                    agents.filter(a => a.active).length;
+                    config.agentCount - dormantPool.length;
                 frameCount = 0;
                 lastTime = now;
             }
@@ -577,15 +781,41 @@
         bindSlider('sensorAngle', 'sensorAngle', 'val-sensorAngle', 2);
         bindSlider('sensorDist', 'sensorDist', 'val-sensorDist', 0);
         bindSlider('turnSpeed', 'turnSpeed', 'val-turnSpeed', 2);
+        bindSlider('coreRadius', 'coreRadius', 'val-coreRadius', 0);
+        bindSlider('maxGeneration', 'maxGeneration', 'val-maxGeneration', 0);
+        bindSlider('veinTaper', 'veinTaper', 'val-veinTaper', 2);
+        bindSlider('porosity', 'porosity', 'val-porosity', 2);
 
-        document.getElementById('resetBtn').addEventListener('click', () => {
+        function syncAllSliders() {
+            const sync = (id, val, dec) => {
+                document.getElementById(id).value = val;
+                document.getElementById('val-' + id).innerText = val.toFixed(dec);
+            };
+            sync('growthRate', config.growthRate, 3);
+            sync('speed', config.moveSpeed, 1);
+            sync('forkChance', config.forkChance, 3);
+            sync('forkAngle', config.forkAngle, 2);
+            sync('branchSpread', config.branchSpread, 2);
+            sync('sensorAngle', config.sensorAngle, 2);
+            sync('sensorDist', config.sensorDist, 0);
+            sync('turnSpeed', config.turnSpeed, 2);
+            sync('decay', config.decay, 3);
+            sync('coreRadius', config.coreRadius, 0);
+            sync('maxGeneration', config.maxGeneration, 0);
+            sync('veinTaper', config.veinTaper, 2);
+            sync('porosity', config.porosity, 2);
+        }
+
+        function resetSimulation() {
             initAgents();
             const empty = new Uint8Array(width * height * 4);
             gl.bindTexture(gl.TEXTURE_2D, texture1);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, empty);
             gl.bindTexture(gl.TEXTURE_2D, texture2);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, empty);
-        });
+        }
+
+        document.getElementById('resetBtn').addEventListener('click', resetSimulation);
 
         document.getElementById('randomBtn').addEventListener('click', () => {
             config.growthRate = Math.random() * 0.015 + 0.002;
@@ -596,28 +826,62 @@
             config.sensorDist = Math.random() * 40 + 5;
             config.turnSpeed = Math.random() * 0.5 + 0.05;
             config.decay = Math.random() * 0.06 + 0.935;
+            config.coreRadius = Math.random() * 120 + 15;
+            config.maxGeneration = Math.floor(Math.random() * 8) + 2;
+            config.veinTaper = Math.random() * 0.5 + 0.25;
+            config.porosity = Math.random() * 0.8 + 0.1;
+            syncAllSliders();
+            resetSimulation();
+        });
 
-            // Sync UI
-            const sync = (id, val, dec) => {
-                document.getElementById(id).value = val;
-                document.getElementById('val-' + id).innerText = val.toFixed(dec);
+        // --- SAVE preset ---
+        document.getElementById('saveBtn').addEventListener('click', () => {
+            const name = prompt('Name this pattern:');
+            if (!name) return;
+            const preset = {
+                name: name,
+                version: '2.0',
+                timestamp: new Date().toISOString(),
+                config: Object.assign({}, config)
             };
-            sync('growthRate', config.growthRate, 3);
-            sync('forkChance', config.forkChance, 3);
-            sync('forkAngle', config.forkAngle, 2);
-            sync('branchSpread', config.branchSpread, 2);
-            sync('sensorAngle', config.sensorAngle, 2);
-            sync('sensorDist', config.sensorDist, 0);
-            sync('turnSpeed', config.turnSpeed, 2);
-            sync('decay', config.decay, 3);
+            const blob = new Blob([JSON.stringify(preset, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'physarum-' + name.replace(/[^a-z0-9_-]/gi, '_').toLowerCase() + '.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        });
 
-            // Reset with new params
-            initAgents();
-            const empty = new Uint8Array(width * height * 4);
-            gl.bindTexture(gl.TEXTURE_2D, texture1);
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, empty);
-            gl.bindTexture(gl.TEXTURE_2D, texture2);
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, empty);
+        // --- LOAD preset ---
+        const loadFileInput = document.getElementById('loadFile');
+        document.getElementById('loadBtn').addEventListener('click', () => {
+            loadFileInput.click();
+        });
+        loadFileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+                try {
+                    const preset = JSON.parse(evt.target.result);
+                    if (!preset.config || typeof preset.config !== 'object') {
+                        alert('Invalid preset file: missing config object.');
+                        return;
+                    }
+                    for (const key in preset.config) {
+                        if (key in config) {
+                            config[key] = preset.config[key];
+                        }
+                    }
+                    syncAllSliders();
+                    resetSimulation();
+                } catch (err) {
+                    alert('Failed to load preset: ' + err.message);
+                }
+            };
+            reader.readAsText(file);
+            loadFileInput.value = '';
         });
 
         // Toggle UI
