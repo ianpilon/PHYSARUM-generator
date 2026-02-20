@@ -62,6 +62,9 @@
     <!-- Canvas for WebGL -->
     <canvas id="simCanvas"></canvas>
 
+    <!-- Floating tab to reopen controls when hidden -->
+    <button id="showTab" class="absolute top-4 left-4 z-30 glass-panel rounded-lg px-3 py-2 text-xs font-bold text-stone-600 hover:bg-stone-200 border border-stone-300 cursor-pointer transition-opacity duration-300 tracking-wider" style="opacity:0; pointer-events:none;">&#9881; CONTROLS</button>
+
     <!-- UI Controls -->
     <div class="absolute top-4 left-4 w-80 glass-panel rounded-xl p-6 z-20 transition-opacity duration-300" id="controls">
         <div class="flex justify-between items-center mb-4 border-b border-stone-300 pb-2">
@@ -620,19 +623,30 @@
         // Toggle UI
         const uiPanel = document.getElementById('controls');
         const toggleBtn = document.getElementById('toggleBtn');
+        const showTab = document.getElementById('showTab');
         let uiVisible = true;
+
+        function showPanel() {
+            uiVisible = true;
+            uiPanel.style.opacity = '1';
+            uiPanel.style.pointerEvents = 'auto';
+            showTab.style.opacity = '0';
+            showTab.style.pointerEvents = 'none';
+        }
+
+        function hidePanel() {
+            uiVisible = false;
+            uiPanel.style.opacity = '0';
+            uiPanel.style.pointerEvents = 'none';
+            showTab.style.opacity = '1';
+            showTab.style.pointerEvents = 'auto';
+        }
+
         toggleBtn.addEventListener('click', () => {
-            uiVisible = !uiVisible;
-            if(uiVisible) {
-                uiPanel.style.opacity = '1';
-                uiPanel.style.pointerEvents = 'auto';
-                toggleBtn.innerText = 'HIDE';
-            } else {
-                uiPanel.style.opacity = '0';
-                uiPanel.style.pointerEvents = 'none';
-                toggleBtn.innerText = 'SHOW';
-            }
+            uiVisible ? hidePanel() : showPanel();
         });
+
+        showTab.addEventListener('click', showPanel);
 
         // --- Start ---
         window.addEventListener('resize', resize);
